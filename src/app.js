@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const winston = require("winston");
+const uuid = require("uuid/v4");
 
 const app = express();
 
@@ -27,6 +28,7 @@ if (NODE_ENV !== "production") {
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+app.use(express.json());
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
@@ -98,6 +100,36 @@ app.get("/list/:id", (req, res) => {
     logger.error(`List with id ${id} not found.`);
     return res.status(404).send("List Not Found");
   }
+});
+
+// POST endpoints:
+
+app.post("/card", (req, res) => {
+  const { title, content } = req.body;
+  console.log(req.body);
+  // Validation:
+  if (!title) {
+    logger.error(`Title is required`);
+    return res.status(400).send("Invalid data");
+  }
+
+  if (!content) {
+    logger.error(`Content is required`);
+    return res.status(400).send("Invalid data");
+  }
+
+  const id = uuid();
+
+  const card = {
+    id,
+    title,
+    content
+  };
+
+  cards.push(card);
+  logger.info(`Card with id ${id} created`);
+
+  res.status(201).location(`http://localhost:8000/card/${id}`);
 });
 
 module.exports = app;
