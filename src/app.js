@@ -67,8 +67,14 @@ const lists = [
   }
 ];
 
-app.get("/", (req, res) => {
-  res.send("Hello, boilerplate!");
+// GET endpoints:
+
+app.get("/card", (req, res) => {
+  res.json(cards);
+});
+
+app.get("/list", (req, res) => {
+  res.json(lists);
 });
 
 module.exports = app;
