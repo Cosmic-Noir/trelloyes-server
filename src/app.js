@@ -4,10 +4,25 @@ const morgan = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
+const winston = require("winston");
 
 const app = express();
 
 const morganOption = NODE_ENV === "production" ? "tiny" : "common";
+
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.json(),
+  transports: [new winston.transports.File({ filename: "info.log" })]
+});
+
+if (NODE_ENV !== "production") {
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple()
+    })
+  );
+}
 
 app.use(morgan(morganOption));
 app.use(helmet());
@@ -23,6 +38,22 @@ app.use(function errorHandler(error, req, res, next) {
   }
   res.status(500).json(response);
 });
+
+// Storage:
+const cards = [
+  {
+    id: 1,
+    title: "Task One",
+    content: "This is card one"
+  }
+];
+const lists = [
+  {
+    id: 1,
+    header: "List One",
+    cardIds: [1]
+  }
+];
 
 app.get("/", (req, res) => {
   res.send("Hello, boilerplate!");
